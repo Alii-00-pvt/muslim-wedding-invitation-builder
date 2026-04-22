@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muslim Wedding Invitation Builder</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New&family=Playfair+Display&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body {
+    margin:0;
+    font-family: 'Playfair Display', serif;
+    background:#f4f2ee;
+}
+
+h1 {
+    text-align:center;
+    margin:15px;
+}
+
+/* Layout */
+.container {
+    display:flex;
+    flex-wrap:wrap;
+}
+
+/* Sidebar */
+.editor {
+    flex:1;
+    min-width:280px;
+    padding:15px;
+    background:#ffffff;
+}
+
+.editor input, textarea, select {
+    width:100%;
+    margin-bottom:10px;
+    padding:8px;
+}
+
+/* Preview */
+.preview {
+    flex:2;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+/* Card Base */
+.card {
+    width:350px;
+    height:550px;
+    padding:25px;
+    text-align:center;
+    position:relative;
+    background-size:cover;
+    background-position:center;
+}
+
+/* Templates */
+.classic {
+    background:#fff;
+    border:2px solid #c8a96a;
+}
+
+.minimal {
+    background:#ffffff;
+    border:1px solid #333;
+}
+
+.gold {
+    background:linear-gradient(#fff,#f5e6c5);
+    border:3px solid gold;
+}
+
+/* Typography */
+.arabic {
+    font-size:20px;
+}
+
+.names {
+    font-size:26px;
+    margin:15px 0;
+}
+
+.details {
+    margin-top:15px;
+    line-height:1.5;
+}
+
+.footer {
+    position:absolute;
+    bottom:20px;
+    width:100%;
+}
+
+/* Buttons */
+button {
+    padding:8px;
+    margin:4px 0;
+    width:100%;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Islamic Wedding Invitation Builder</h1>
+
+<div class="container">
+
+<!-- EDITOR -->
+<div class="editor">
+
+<select id="template">
+<option value="classic">Classic</option>
+<option value="minimal">Minimal</option>
+<option value="gold">Gold Islamic</option>
+</select>
+
+<select id="fontStyle">
+<option value="Amiri">Amiri (Arabic Elegant)</option>
+<option value="Scheherazade New">Scheherazade</option>
+<option value="Playfair Display">Playfair</option>
+</select>
+
+<input type="text" id="groom" placeholder="Groom Name">
+<input type="text" id="bride" placeholder="Bride Name">
+<input type="text" id="date" placeholder="Date">
+<input type="text" id="venue" placeholder="Venue">
+
+<textarea id="message">With the blessings of Allah...</textarea>
+
+<input type="file" id="bgUpload">
+
+<button onclick="updateCard()">Update Preview</button>
+
+<hr>
+
+<button onclick="downloadPNG()">Download PNG</button>
+<button onclick="downloadJPG()">Download JPG</button>
+<button onclick="downloadPDF()">Download PDF</button>
+
+</div>
+
+<!-- PREVIEW -->
+<div class="preview">
+<div id="card" class="card classic">
+
+<div class="arabic">بِسْمِ ٱللَّٰهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+
+<div id="messagePreview" class="details">
+With the blessings of Allah...
+</div>
+
+<div id="namesPreview" class="names">
+Abdullah & Fatima
+</div>
+
+<div class="details">
+<div id="datePreview">Date</div>
+<div id="venuePreview">Venue</div>
+</div>
+
+<div class="footer">
+Kindly honour us with your presence & dua
+</div>
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+/* Update Content */
+function updateCard() {
+
+document.getElementById("namesPreview").innerText =
+document.getElementById("groom").value + " & " +
+document.getElementById("bride").value;
+
+document.getElementById("datePreview").innerText =
+document.getElementById("date").value;
+
+document.getElementById("venuePreview").innerText =
+document.getElementById("venue").value;
+
+document.getElementById("messagePreview").innerText =
+document.getElementById("message").value;
+
+/* Template Switch */
+let template = document.getElementById("template").value;
+let card = document.getElementById("card");
+card.className = "card " + template;
+
+/* Font Switch */
+let font = document.getElementById("fontStyle").value;
+card.style.fontFamily = font;
+
+}
+
+/* Background Upload */
+document.getElementById("bgUpload").addEventListener("change", function(e){
+const reader = new FileReader();
+reader.onload = function(){
+document.getElementById("card").style.backgroundImage = `url(${reader.result})`;
+}
+reader.readAsDataURL(e.target.files[0]);
+});
+
+/* Export */
+function downloadPNG(){
+html2canvas(document.getElementById("card")).then(canvas=>{
+let link=document.createElement("a");
+link.download="invite.png";
+link.href=canvas.toDataURL();
+link.click();
+});
+}
+
+function downloadJPG(){
+html2canvas(document.getElementById("card")).then(canvas=>{
+let link=document.createElement("a");
+link.download="invite.jpg";
+link.href=canvas.toDataURL("image/jpeg");
+link.click();
+});
+}
+
+function downloadPDF(){
+html2canvas(document.getElementById("card")).then(canvas=>{
+const img=canvas.toDataURL("image/png");
+const {jsPDF}=window.jspdf;
+let pdf=new jsPDF();
+pdf.addImage(img,'PNG',10,10,180,240);
+pdf.save("invite.pdf");
+});
+}
+
+</script>
+
+</body>
+</html>
