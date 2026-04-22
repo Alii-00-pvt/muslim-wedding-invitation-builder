@@ -1,250 +1,890 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Muslim Wedding Invitation Builder</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Islamic Wedding Invitation Builder</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New&family=Playfair+Display&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<style>
-body {
-    margin:0;
-    font-family: 'Playfair Display', serif;
-    background:#f4f2ee;
-}
+  <style>
+    :root {
+      --bg-page: #f3efe8;
+      --bg-panel: rgba(255,255,255,0.88);
+      --text-main: #1f1a17;
+      --text-soft: #6c625a;
+      --border-soft: rgba(80, 61, 44, 0.14);
+      --shadow-soft: 0 18px 40px rgba(31, 26, 23, 0.09);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --panel-width: 420px;
+    }
 
-h1 {
-    text-align:center;
-    margin:15px;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-/* Layout */
-.container {
-    display:flex;
-    flex-wrap:wrap;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at top left, rgba(190, 160, 120, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(113, 144, 122, 0.12), transparent 26%),
+        linear-gradient(135deg, #f7f3ed 0%, #efe7dc 100%);
+      font-family: "Cormorant Garamond", serif;
+    }
 
-/* Sidebar */
-.editor {
-    flex:1;
-    min-width:280px;
-    padding:15px;
-    background:#ffffff;
-}
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, var(--panel-width)) 1fr;
+      min-height: 100vh;
+      gap: 28px;
+      padding: 24px;
+      align-items: start;
+    }
 
-.editor input, textarea, select {
-    width:100%;
-    margin-bottom:10px;
-    padding:8px;
-}
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.65);
+      border-radius: 28px;
+      box-shadow: var(--shadow-soft);
+      padding: 22px;
+    }
 
-/* Preview */
-.preview {
-    flex:2;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
-}
+    .brand {
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-soft);
+    }
 
-/* Card Base */
-.card {
-    width:350px;
-    height:550px;
-    padding:25px;
-    text-align:center;
-    position:relative;
-    background-size:cover;
-    background-position:center;
-}
+    .brand h1 {
+      margin: 0 0 8px 0;
+      font-size: 2rem;
+      line-height: 1;
+      font-family: "Cinzel", serif;
+      letter-spacing: 0.02em;
+    }
 
-/* Templates */
-.classic {
-    background:#fff;
-    border:2px solid #c8a96a;
-}
+    .brand p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.25;
+    }
 
-.minimal {
-    background:#ffffff;
-    border:1px solid #333;
-}
+    .group {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(90, 69, 49, 0.1);
+      border-radius: 18px;
+      padding: 16px;
+    }
 
-.gold {
-    background:linear-gradient(#fff,#f5e6c5);
-    border:3px solid gold;
-}
+    .group h2 {
+      margin: 0 0 14px 0;
+      font-size: 1.2rem;
+      font-family: "Cinzel", serif;
+      letter-spacing: 0.03em;
+    }
 
-/* Typography */
-.arabic {
-    font-size:20px;
-}
+    .field {
+      margin-bottom: 12px;
+    }
 
-.names {
-    font-size:26px;
-    margin:15px 0;
-}
+    .field:last-child {
+      margin-bottom: 0;
+    }
 
-.details {
-    margin-top:15px;
-    line-height:1.5;
-}
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: #45392f;
+    }
 
-.footer {
-    position:absolute;
-    bottom:20px;
-    width:100%;
-}
+    input[type="text"],
+    textarea,
+    select,
+    input[type="file"] {
+      width: 100%;
+      border: 1px solid rgba(90, 69, 49, 0.18);
+      background: #fffdf9;
+      color: #1f1a17;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font: inherit;
+      font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+    }
 
-/* Buttons */
-button {
-    padding:8px;
-    margin:4px 0;
-    width:100%;
-    cursor:pointer;
-}
-</style>
+    textarea {
+      min-height: 82px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: rgba(143, 102, 53, 0.55);
+      box-shadow: 0 0 0 4px rgba(183, 147, 103, 0.13);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.14s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #8f6e44 0%, #c8a36a 100%);
+      color: white;
+      box-shadow: 0 10px 22px rgba(143, 110, 68, 0.2);
+    }
+
+    button.secondary {
+      background: white;
+      color: #3f3329;
+      border: 1px solid rgba(90, 69, 49, 0.16);
+    }
+
+    .preview-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .preview-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      padding: 8px 6px 0;
+    }
+
+    .preview-top h2 {
+      margin: 0;
+      font-size: 2rem;
+      font-family: "Cinzel", serif;
+      line-height: 1;
+    }
+
+    .preview-top p {
+      margin: 6px 0 0;
+      color: var(--text-soft);
+      font-size: 1rem;
+    }
+
+    .canvas-area {
+      display: grid;
+      place-items: center;
+      min-height: calc(100vh - 120px);
+      padding: 12px;
+      border-radius: 30px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.28));
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+
+    /* CARD SIZE */
+    .invitation-card {
+      position: relative;
+      width: 760px;
+      max-width: 100%;
+      aspect-ratio: 5 / 7;
+      overflow: hidden;
+      border-radius: 0;
+      box-shadow: 0 30px 70px rgba(39, 28, 18, 0.18);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      isolation: isolate;
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      padding: 52px 54px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    .top-ornament,
+    .bottom-ornament {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 78%;
+      height: 28px;
+      z-index: 2;
+      opacity: 0.9;
+    }
+
+    .top-ornament {
+      top: 22px;
+    }
+
+    .bottom-ornament {
+      bottom: 20px;
+      transform: translateX(-50%) rotate(180deg);
+    }
+
+    .ornament-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      transform: translateY(-50%);
+      background: currentColor;
+      opacity: 0.45;
+    }
+
+    .ornament-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 22px;
+      height: 22px;
+      transform: translate(-50%, -50%) rotate(45deg);
+      border: 1px solid currentColor;
+      background: transparent;
+      opacity: 0.85;
+    }
+
+    .ornament-dot {
+      position: absolute;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      transform: translateY(-50%);
+      opacity: 0.8;
+    }
+
+    .ornament-dot.left {
+      left: 22%;
+    }
+
+    .ornament-dot.right {
+      right: 22%;
+    }
+
+    .bismillah {
+      font-family: "Amiri", serif;
+      font-size: 2rem;
+      line-height: 1.35;
+      margin-top: 18px;
+      margin-bottom: 18px;
+    }
+
+    .title-text {
+      font-size: 1.35rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .intro-text {
+      font-size: 1.45rem;
+      line-height: 1.45;
+      margin: 0 auto 24px;
+      max-width: 86%;
+    }
+
+    .names-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 8px 0 26px;
+    }
+
+    .groom-name,
+    .bride-name {
+      font-size: 3.55rem;
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      word-break: break-word;
+      max-width: 100%;
+    }
+
+    .and-symbol {
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 500;
+      opacity: 0.9;
+    }
+
+    .details-grid {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .detail-box {
+      padding: 14px 14px 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.28);
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .detail-label {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 8px;
+      opacity: 0.8;
+    }
+
+    .detail-value {
+      font-size: 1.4rem;
+      line-height: 1.3;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .footer-section {
+      margin-top: 28px;
+      padding: 0 18px 22px;
+    }
+
+    .footer-text {
+      font-size: 1.38rem;
+      line-height: 1.45;
+      margin: 0 auto;
+      max-width: 88%;
+    }
+
+    /* THEMES */
+    .theme-classic {
+      background-color: #fbf6ee;
+      color: #3b2d1f;
+      border: 10px solid #d6b174;
+    }
+
+    .theme-classic .card-overlay {
+      background:
+        radial-gradient(circle at top left, rgba(214,177,116,0.16), transparent 20%),
+        radial-gradient(circle at bottom right, rgba(138,109,70,0.12), transparent 20%);
+    }
+
+    .theme-classic .detail-box {
+      background: rgba(255, 250, 243, 0.55);
+      border-color: rgba(112, 83, 48, 0.15);
+    }
+
+    .theme-minimal {
+      background-color: #ffffff;
+      color: #1f1f1f;
+      border: 1px solid #dadada;
+    }
+
+    .theme-minimal .card-overlay {
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.025), rgba(0,0,0,0.01));
+    }
+
+    .theme-minimal .detail-box {
+      background: #fafafa;
+      border-color: rgba(0,0,0,0.08);
+    }
+
+    .theme-gold {
+      background:
+        linear-gradient(145deg, #fff9ee 0%, #f4e3be 100%);
+      color: #4a3620;
+      border: 12px solid #caa25f;
+    }
+
+    .theme-gold .card-overlay {
+      background:
+        radial-gradient(circle at top center, rgba(255,255,255,0.52), transparent 28%),
+        radial-gradient(circle at bottom center, rgba(202,162,95,0.14), transparent 30%);
+    }
+
+    .theme-gold .detail-box {
+      background: rgba(255,248,234,0.5);
+      border-color: rgba(130, 94, 44, 0.16);
+    }
+
+    .theme-emerald {
+      background:
+        linear-gradient(135deg, #f8fcfa 0%, #e6f0ea 100%);
+      color: #1f3d2f;
+      border: 10px solid #5d8c72;
+    }
+
+    .theme-emerald .card-overlay {
+      background:
+        radial-gradient(circle at top left, rgba(93,140,114,0.14), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(41,78,60,0.12), transparent 24%);
+    }
+
+    .theme-emerald .detail-box {
+      background: rgba(248,252,250,0.45);
+      border-color: rgba(31,61,47,0.12);
+    }
+
+    /* FONTS */
+    .font-playfair .card-font-target {
+      font-family: "Playfair Display", serif;
+    }
+
+    .font-cormorant .card-font-target {
+      font-family: "Cormorant Garamond", serif;
+    }
+
+    .font-cinzel .card-font-target {
+      font-family: "Cinzel", serif;
+    }
+
+    .font-amiri .card-font-target {
+      font-family: "Amiri", serif;
+    }
+
+    /* MOBILE */
+    @media (max-width: 1180px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        top: 0;
+        max-height: none;
+      }
+
+      .canvas-area {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .preview-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .invitation-card {
+        width: 100%;
+      }
+
+      .card-inner {
+        padding: 38px 24px;
+      }
+
+      .bismillah {
+        font-size: 1.65rem;
+      }
+
+      .title-text {
+        font-size: 1rem;
+      }
+
+      .intro-text {
+        font-size: 1.12rem;
+        max-width: 100%;
+      }
+
+      .groom-name,
+      .bride-name {
+        font-size: 2.45rem;
+      }
+
+      .and-symbol {
+        font-size: 1.5rem;
+      }
+
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-value {
+        font-size: 1.18rem;
+      }
+
+      .footer-text {
+        font-size: 1.08rem;
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app {
+        padding: 14px;
+        gap: 14px;
+      }
+
+      .sidebar {
+        border-radius: 22px;
+        padding: 16px;
+      }
+
+      .group {
+        padding: 14px;
+      }
+
+      .brand h1 {
+        font-size: 1.55rem;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Invitation Builder</h1>
+        <p>Edit every visible text, switch themes, change fonts, upload a background, and export the final card.</p>
+      </div>
 
-<h1>Islamic Wedding Invitation Builder</h1>
+      <div class="group">
+        <h2>Design</h2>
 
-<div class="container">
+        <div class="field">
+          <label for="themeSelect">Theme</label>
+          <select id="themeSelect">
+            <option value="theme-classic">Classic</option>
+            <option value="theme-minimal">Minimal</option>
+            <option value="theme-gold">Gold Islamic</option>
+            <option value="theme-emerald">Emerald Nikah</option>
+          </select>
+        </div>
 
-<!-- EDITOR -->
-<div class="editor">
+        <div class="field">
+          <label for="fontSelect">Main Font</label>
+          <select id="fontSelect">
+            <option value="font-cormorant">Cormorant Garamond</option>
+            <option value="font-playfair">Playfair Display</option>
+            <option value="font-cinzel">Cinzel</option>
+            <option value="font-amiri">Amiri</option>
+          </select>
+        </div>
 
-<select id="template">
-<option value="classic">Classic</option>
-<option value="minimal">Minimal</option>
-<option value="gold">Gold Islamic</option>
-</select>
+        <div class="field">
+          <label for="bgUpload">Optional Background Image</label>
+          <input type="file" id="bgUpload" accept="image/*">
+        </div>
+      </div>
 
-<select id="fontStyle">
-<option value="Amiri">Amiri (Arabic Elegant)</option>
-<option value="Scheherazade New">Scheherazade</option>
-<option value="Playfair Display">Playfair</option>
-</select>
+      <div class="group">
+        <h2>Top Text</h2>
 
-<input type="text" id="groom" placeholder="Groom Name">
-<input type="text" id="bride" placeholder="Bride Name">
-<input type="text" id="date" placeholder="Date">
-<input type="text" id="venue" placeholder="Venue">
+        <div class="field">
+          <label for="bismillahInput">Arabic Header</label>
+          <input type="text" id="bismillahInput" value="بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ">
+        </div>
 
-<textarea id="message">With the blessings of Allah...</textarea>
+        <div class="field">
+          <label for="titleInput">Small Title</label>
+          <input type="text" id="titleInput" value="Wedding Invitation">
+        </div>
 
-<input type="file" id="bgUpload">
+        <div class="field">
+          <label for="introInput">Intro Message</label>
+          <textarea id="introInput">With the blessings of Allah, we warmly invite you to join us in celebrating this blessed union.</textarea>
+        </div>
+      </div>
 
-<button onclick="updateCard()">Update Preview</button>
+      <div class="group">
+        <h2>Names</h2>
 
-<hr>
+        <div class="field">
+          <label for="groomInput">Groom Name</label>
+          <input type="text" id="groomInput" value="Abdullah">
+        </div>
 
-<button onclick="downloadPNG()">Download PNG</button>
-<button onclick="downloadJPG()">Download JPG</button>
-<button onclick="downloadPDF()">Download PDF</button>
+        <div class="field">
+          <label for="andInput">Middle Text / Symbol</label>
+          <input type="text" id="andInput" value="and">
+        </div>
 
-</div>
+        <div class="field">
+          <label for="brideInput">Bride Name</label>
+          <input type="text" id="brideInput" value="Fatima">
+        </div>
+      </div>
 
-<!-- PREVIEW -->
-<div class="preview">
-<div id="card" class="card classic">
+      <div class="group">
+        <h2>Details</h2>
 
-<div class="arabic">بِسْمِ ٱللَّٰهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+        <div class="field">
+          <label for="dateLabelInput">Date Label</label>
+          <input type="text" id="dateLabelInput" value="Date">
+        </div>
 
-<div id="messagePreview" class="details">
-With the blessings of Allah...
-</div>
+        <div class="field">
+          <label for="dateValueInput">Date Value</label>
+          <input type="text" id="dateValueInput" value="Sunday, 14 January 2026">
+        </div>
 
-<div id="namesPreview" class="names">
-Abdullah & Fatima
-</div>
+        <div class="field">
+          <label for="venueLabelInput">Venue Label</label>
+          <input type="text" id="venueLabelInput" value="Venue">
+        </div>
 
-<div class="details">
-<div id="datePreview">Date</div>
-<div id="venuePreview">Venue</div>
-</div>
+        <div class="field">
+          <label for="venueValueInput">Venue Value</label>
+          <input type="text" id="venueValueInput" value="Masjid Al Noor, Birmingham">
+        </div>
+      </div>
 
-<div class="footer">
-Kindly honour us with your presence & dua
-</div>
+      <div class="group">
+        <h2>Footer</h2>
 
-</div>
-</div>
+        <div class="field">
+          <label for="footerInput">Footer Message</label>
+          <textarea id="footerInput">Kindly honour us with your presence and dua.</textarea>
+        </div>
+      </div>
 
-</div>
+      <div class="group">
+        <h2>Export</h2>
+        <div class="button-row">
+          <button class="primary" id="downloadPngBtn">Download PNG</button>
+          <button class="secondary" id="downloadJpgBtn">Download JPG</button>
+          <button class="secondary" id="downloadPdfBtn">Download PDF</button>
+        </div>
+      </div>
+    </aside>
 
-<script>
+    <section class="preview-wrap">
+      <div class="preview-top">
+        <div>
+          <h2>Live Preview</h2>
+          <p>Everything updates instantly as you type or switch styles.</p>
+        </div>
+      </div>
 
-/* Update Content */
-function updateCard() {
+      <div class="canvas-area">
+        <div id="card" class="invitation-card theme-classic font-cormorant">
+          <div class="card-overlay"></div>
 
-document.getElementById("namesPreview").innerText =
-document.getElementById("groom").value + " & " +
-document.getElementById("bride").value;
+          <div class="top-ornament" aria-hidden="true">
+            <div class="ornament-line"></div>
+            <div class="ornament-center"></div>
+            <div class="ornament-dot left"></div>
+            <div class="ornament-dot right"></div>
+          </div>
 
-document.getElementById("datePreview").innerText =
-document.getElementById("date").value;
+          <div class="card-inner">
+            <div>
+              <div class="bismillah" id="previewBismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
 
-document.getElementById("venuePreview").innerText =
-document.getElementById("venue").value;
+              <div class="card-font-target">
+                <div class="title-text" id="previewTitle">Wedding Invitation</div>
 
-document.getElementById("messagePreview").innerText =
-document.getElementById("message").value;
+                <div class="intro-text" id="previewIntro">
+                  With the blessings of Allah, we warmly invite you to join us in celebrating this blessed union.
+                </div>
 
-/* Template Switch */
-let template = document.getElementById("template").value;
-let card = document.getElementById("card");
-card.className = "card " + template;
+                <div class="names-block">
+                  <div class="groom-name" id="previewGroom">Abdullah</div>
+                  <div class="and-symbol" id="previewAnd">and</div>
+                  <div class="bride-name" id="previewBride">Fatima</div>
+                </div>
 
-/* Font Switch */
-let font = document.getElementById("fontStyle").value;
-card.style.fontFamily = font;
+                <div class="details-grid">
+                  <div class="detail-box">
+                    <div class="detail-label" id="previewDateLabel">Date</div>
+                    <div class="detail-value" id="previewDateValue">Sunday, 14 January 2026</div>
+                  </div>
 
-}
+                  <div class="detail-box">
+                    <div class="detail-label" id="previewVenueLabel">Venue</div>
+                    <div class="detail-value" id="previewVenueValue">Masjid Al Noor, Birmingham</div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-/* Background Upload */
-document.getElementById("bgUpload").addEventListener("change", function(e){
-const reader = new FileReader();
-reader.onload = function(){
-document.getElementById("card").style.backgroundImage = `url(${reader.result})`;
-}
-reader.readAsDataURL(e.target.files[0]);
-});
+            <div class="footer-section card-font-target">
+              <p class="footer-text" id="previewFooter">Kindly honour us with your presence and dua.</p>
+            </div>
+          </div>
 
-/* Export */
-function downloadPNG(){
-html2canvas(document.getElementById("card")).then(canvas=>{
-let link=document.createElement("a");
-link.download="invite.png";
-link.href=canvas.toDataURL();
-link.click();
-});
-}
+          <div class="bottom-ornament" aria-hidden="true">
+            <div class="ornament-line"></div>
+            <div class="ornament-center"></div>
+            <div class="ornament-dot left"></div>
+            <div class="ornament-dot right"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 
-function downloadJPG(){
-html2canvas(document.getElementById("card")).then(canvas=>{
-let link=document.createElement("a");
-link.download="invite.jpg";
-link.href=canvas.toDataURL("image/jpeg");
-link.click();
-});
-}
+  <script>
+    const card = document.getElementById("card");
 
-function downloadPDF(){
-html2canvas(document.getElementById("card")).then(canvas=>{
-const img=canvas.toDataURL("image/png");
-const {jsPDF}=window.jspdf;
-let pdf=new jsPDF();
-pdf.addImage(img,'PNG',10,10,180,240);
-pdf.save("invite.pdf");
-});
-}
+    const fields = [
+      { input: "bismillahInput", preview: "previewBismillah" },
+      { input: "titleInput", preview: "previewTitle" },
+      { input: "introInput", preview: "previewIntro" },
+      { input: "groomInput", preview: "previewGroom" },
+      { input: "andInput", preview: "previewAnd" },
+      { input: "brideInput", preview: "previewBride" },
+      { input: "dateLabelInput", preview: "previewDateLabel" },
+      { input: "dateValueInput", preview: "previewDateValue" },
+      { input: "venueLabelInput", preview: "previewVenueLabel" },
+      { input: "venueValueInput", preview: "previewVenueValue" },
+      { input: "footerInput", preview: "previewFooter" }
+    ];
 
-</script>
+    function updateText() {
+      fields.forEach(({ input, preview }) => {
+        const inputEl = document.getElementById(input);
+        const previewEl = document.getElementById(preview);
+        if (inputEl && previewEl) {
+          previewEl.textContent = inputEl.value;
+        }
+      });
+    }
 
+    function updateTheme() {
+      const theme = document.getElementById("themeSelect").value;
+      card.classList.remove("theme-classic", "theme-minimal", "theme-gold", "theme-emerald");
+      card.classList.add(theme);
+    }
+
+    function updateFont() {
+      const font = document.getElementById("fontSelect").value;
+      card.classList.remove("font-cormorant", "font-playfair", "font-cinzel", "font-amiri");
+      card.classList.add(font);
+    }
+
+    function attachLiveListeners() {
+      fields.forEach(({ input }) => {
+        const el = document.getElementById(input);
+        if (el) {
+          el.addEventListener("input", updateText);
+        }
+      });
+
+      document.getElementById("themeSelect").addEventListener("change", updateTheme);
+      document.getElementById("fontSelect").addEventListener("change", updateFont);
+    }
+
+    document.getElementById("bgUpload").addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        card.style.backgroundImage = `url('${e.target.result}')`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    async function exportCanvas(type) {
+      const canvas = await html2canvas(card, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null
+      });
+
+      if (type === "png") {
+        const link = document.createElement("a");
+        link.download = "islamic-invitation.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }
+
+      if (type === "jpg") {
+        const link = document.createElement("a");
+        link.download = "islamic-invitation.jpg";
+        link.href = canvas.toDataURL("image/jpeg", 0.98);
+        link.click();
+      }
+
+      if (type === "pdf") {
+        const { jsPDF } = window.jspdf;
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4");
+
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 10;
+        const usableWidth = pageWidth - (margin * 2);
+        const usableHeight = pageHeight - (margin * 2);
+
+        const imgWidth = usableWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        let finalWidth = imgWidth;
+        let finalHeight = imgHeight;
+
+        if (finalHeight > usableHeight) {
+          finalHeight = usableHeight;
+          finalWidth = (canvas.width * finalHeight) / canvas.height;
+        }
+
+        const x = (pageWidth - finalWidth) / 2;
+        const y = (pageHeight - finalHeight) / 2;
+
+        pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
+        pdf.save("islamic-invitation.pdf");
+      }
+    }
+
+    document.getElementById("downloadPngBtn").addEventListener("click", () => exportCanvas("png"));
+    document.getElementById("downloadJpgBtn").addEventListener("click", () => exportCanvas("jpg"));
+    document.getElementById("downloadPdfBtn").addEventListener("click", () => exportCanvas("pdf"));
+
+    attachLiveListeners();
+    updateText();
+    updateTheme();
+    updateFont();
+  </script>
 </body>
 </html>
